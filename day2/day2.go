@@ -12,41 +12,56 @@ func ReportSafer() {
 	data, _ := os.ReadFile(filePath)
 
 	file := strings.Split(string(data), "\r\n")
-
 	soluce := 0
 	for _, row := range file {
-		checker := 0
-		report := strings.Split(string(row), " ")
-		for i := 1; i < len(report); i++ {
-			if isSafe(report, i, "asc") || isSafe(report, i, "desc") {
-				checker++
-			}
-		}
-		if checker == len(report) {
-			soluce++
-		}
+		soluce += rowIsSafe(strings.Split(string(row), " "))
 	}
-
 	println(soluce)
 }
 
-func isSafe(tab []string, i int, sens string) bool {
-
-	a, _ := strconv.Atoi(tab[i])
-	b, _ := strconv.Atoi(tab[i-1])
-
-	diff := abs(a - b)
-
-	if sens == "asc" {
-		return a > b && diff <= 3
-	} else if sens == "desc" {
-		return a < b && diff >= 3
+func rowIsSafe(row []string) int {
+	compteurAsc := 0
+	compteurDesc := 0
+	arrSize := len(row) - 1
+	for i := 1; i < len(row); i++ {
+		first, _ := strconv.Atoi(row[i])
+		second, _ := strconv.Atoi(row[i-1])
+		if isThree(first - second) {
+			if isFollowing(first, second, "asc") {
+				compteurAsc++
+			}
+			if isFollowing(first, second, "desc") {
+				compteurDesc++
+			}
+		}
 	}
-
-	return false // Invalid sens value
+	if compteurAsc == arrSize || compteurDesc == arrSize {
+		return 1
+	}
+	return 0
 }
 
-// Helper function to calculate absolute value
+func isFollowing(a int, b int, sens string) bool {
+	if sens == "asc" {
+		if a > b {
+			return true
+		}
+	} else {
+		if a < b {
+			return true
+		}
+	}
+	return false
+}
+
+func isThree(x int) bool {
+	test := abs(x)
+	if test <= 3 {
+		return true
+	}
+	return false
+}
+
 func abs(x int) int {
 	if x < 0 {
 		return -x
